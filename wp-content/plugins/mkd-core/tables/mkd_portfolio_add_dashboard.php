@@ -2,20 +2,17 @@
 global $wpdb;
 $message = '';
 
- 
 
-if (isset($_POST['Add'])) 
-{ 
+
+if (isset($_POST['Add'])) {
     unset($_POST['Add']);
     unset($_POST['content_2']);
 
-    $_POST['content']     = str_replace('"', "'", $_POST['content']); 
-    $result = $wpdb->insert('mkd_portfolio', $_POST, array('%s', '%s', '%s', '%s', '%s','%s', '%s'));
-    if ($wpdb->last_error === '') 
-    {
+    $_POST['content']     = str_replace('"', "'", $_POST['content']);
+    $result = $wpdb->insert('mkd_portfolio', $_POST, array('%s', '%s', '%s', '%s', '%s', '%s', '%s'));
+    if ($wpdb->last_error === '') {
         $message .= "Portfolio Added. <a href='/wp-admin/admin.php?page=mkd_portfolio_list_dashboard'>Click Here to go back to list</a>";
     }
- 
 }
 
 function getUsersByRole($role, $name, $selected = '', $extra = '')
@@ -102,9 +99,9 @@ function getFonts()
 }
 ?>
 
- 
+
 <style type="text/css">
-    .wp-editor-tabs{
+    .wp-editor-tabs {
         display: none;
     }
 </style>
@@ -129,7 +126,7 @@ function getFonts()
                     </th>
                     <td>
                         <div class="col-md-6">
-                            <?php echo getUsersByRole('subscriber', 'user_id'); ?> 
+                            <?php echo getUsersByRole('subscriber', 'user_id'); ?>
                         </div>
                     </td>
                 </tr>
@@ -146,7 +143,7 @@ function getFonts()
                         <input name='title' required id='title' type="text" required='true' />
                     </td>
 
-                </tr> 
+                </tr>
                 <tr class='form-field'>
 
                     <th scope='row'>
@@ -164,7 +161,7 @@ function getFonts()
 
                 </tr>
 
-                
+
                 <tr class='form-field'>
 
                     <th scope='row'>
@@ -190,22 +187,22 @@ function getFonts()
                         </label>
                     </th>
                     <td>
-                        <?php  
-                            wp_editor( "" , 'content_id', array(
-                                    'quicktags' => false,
-                                    'media_buttons' => false,
-                                    'required' => true,
-                                    'textarea_rows' => 10,
-                                    'teeny' => true,
-                                    'textarea_name' => "content_2",
-                                    'tinymce'       => array( 'toolbar1'      => 'undo,redo'),
-                                ) );
-                            ?>   
-                        <textarea  style="display: none;" name="content" id="content_fill"></textarea>
+                        <?php
+                        wp_editor("", 'content_id', array(
+                            'quicktags' => false,
+                            'media_buttons' => false,
+                            'required' => true,
+                            'textarea_rows' => 10,
+                            'teeny' => true,
+                            'textarea_name' => "content_2",
+                            'tinymce'       => array('toolbar1'      => 'undo,redo'),
+                        ));
+                        ?>
+                        <textarea style="display: none;" name="content" id="content_fill"></textarea>
                     </td>
 
                 </tr>
-                
+
                 <!-- <tr class='form-field'>
                     <th scope='row'>
                         <label for='submitted_to_contest'>
@@ -253,8 +250,8 @@ function getFonts()
 </div>
 
 <script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function(){ 
-        setInterval(function () {
+    document.addEventListener('DOMContentLoaded', function() {
+        setInterval(function() {
             var content = jQuery(tinymce.get('content_id').getBody()).html();
 
             jQuery('#content_fill').val(content);

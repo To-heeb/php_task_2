@@ -299,9 +299,9 @@
 
     }
 </style>
-<?php if(get_current_user_id() == bbp_get_user_id() ) {
+<?php if (get_current_user_id() == bbp_get_user_id()) {
     include_once 'portfolio_form.php';
-}?>
+} ?>
 
 
 
@@ -559,7 +559,9 @@
     //Edit
     function editPortfolio(id) {
         console.log('here');
-        $('html, body').animate({ scrollTop: $('#object-nav').offset().top }, 'slow');
+        $('html, body').animate({
+            scrollTop: $('#object-nav').offset().top
+        }, 'slow');
         jQuery.ajax({
             type: "POST",
             dataType: "json",
@@ -602,12 +604,9 @@
                             document.getElementById('title').value = element.title;
                             document.getElementById('contents').innerHTML = element.content;
 
-                            if(element.type == 'color')
-                            {
+                            if (element.type == 'color') {
                                 document.getElementById('color').value = element.image_url;
-                            }
-                            else if(element.type == 'image')
-                            {
+                            } else if (element.type == 'image') {
                                 document.getElementById('image').value = element.image_url;
                             }
                             document.getElementById('psuedoname').value = element.psuedoname;
@@ -632,8 +631,7 @@
 
 
     //Preiew Portfolio from box
-    function display(id) 
-    {
+    function display(id) {
 
         $('#bd-example-modal-lg').modal({
             show: true
@@ -650,25 +648,22 @@
             data: {
                 "id": id
             },
-            url: "/wp-admin/admin-ajax.php?action=get_portfolio_by_id_ajax", 
-            success: function(data) 
-            {
+            url: "/wp-admin/admin-ajax.php?action=get_portfolio_by_id_ajax",
+            success: function(data) {
 
-                for (i in data) 
-                {
+                for (i in data) {
 
                     if (jQuery.isEmptyObject({
                             data
                         })) {
                         return
-                    } else 
-                    { 
+                    } else {
                         data[i].forEach(element => {
                             html2 += `<h2 class='mt-1 ' id="d_content">   ` + element.title + `</h2>`;
                             html2 += `<p class="content">   ` + element.content + `</p>`;
 
                             html2 += `<p class="pusedoname">   ` + element.psuedoname + `</p>`;
- 
+
                             $('#content_data').html(html2);
 
                             $('#user_data').html(html);
@@ -1377,90 +1372,86 @@
     var user_name = url_array[2];
 
     $('img').click(function() {
-        image = document.getElementById('image');  
+        image = document.getElementById('image');
         var img = $(this).attr('src');
         image.value = img;
         $('#color').val('');
     });
     //for page reload category
-    $(document).ready(function() {  
-        jQuery.ajax({
-            type: "POST",
-            dataType: "json", 
-            data: {
-                "user_name": user_name
-            },
-            url: "/wp-admin/admin-ajax.php?action=get_portfolio_All_ajax", 
-            success: function(data) 
-            { 
-                for (i in data) 
-                {
-                    var html = '';
-                    var bg = '';
-                    var bgs = '';
-                    if (jQuery.isEmptyObject({
-                            data
-                        })) {
+    $(document).ready(function() {
+            jQuery.ajax({
+                type: "POST",
+                dataType: "json",
+                data: {
+                    "user_name": user_name
+                },
+                url: "/wp-admin/admin-ajax.php?action=get_portfolio_All_ajax",
+                success: function(data) {
+                    for (i in data) {
+                        var html = '';
+                        var bg = '';
+                        var bgs = '';
+                        if (jQuery.isEmptyObject({
+                                data
+                            })) {
 
-                        html += '<h2>Title  : No Portfolio  </h2>';
-                        html += "</div>"
-                        return
-                    } else {
-
-                        $(".box").remove();
-                        // elem.parentNode.removeChild(elem);
-                        data[i].forEach(element => {
-
-
-                            var p = '';
-                            bg = element.image_url;
-
-                            if (bg.length > 8) {
-                                background = "background-image: url('" + bg + "')";
-
-                            }
-                            if (bg.length < 8) {
-                                background = "background: " + bg + "";
-                            }
-                            console.log(background);
-
-                            html += '<div class = "col-md-3 box" id="bg-box" style="' + background + '">';
-                            //Display Profile and user name
-                            // html += "<?php $current_user = wp_get_current_user();
-                                        //             echo get_avatar($current_user->ID, 32) . "<h6 style='display:inline'>&nbsp;  $current_user->user_firstname    $current_user->user_lastname   &emsp;&emsp;  &emsp; </h6>";
-                                        ?>";
-                            html += '<a href="javascript:void(0)"  onclick="editPortfolio(' + element.id + ')"><img src="/wp-content/plugins/mkd-core/icons/pencil.png"/></a>';
-                            html += '<a href="javascript:void(0)" onclick="deletePortfolio(' + element.id + ')"><img src="/wp-content/plugins/mkd-core/icons/trash.png"/></a>';
-
-
-                            html += '<h4 onclick="display(' + element.id + ')" class=" text-center p-5 p_title "style="position:absolute; top:80px" > ' + element.title + ' </h4>';
-                            html += '<div style="position:absolute; top:60px">'
-
+                            html += '<h2>Title  : No Portfolio  </h2>';
                             html += "</div>"
+                            return
+                        } else {
+
+                            $(".box").remove();
+                            // elem.parentNode.removeChild(elem);
+                            data[i].forEach(element => {
+
+
+                                var p = '';
+                                bg = element.image_url;
+
+                                if (bg.length > 8) {
+                                    background = "background-image: url('" + bg + "')";
+
+                                }
+                                if (bg.length < 8) {
+                                    background = "background: " + bg + "";
+                                }
+                                console.log(background);
+
+                                html += '<div class = "col-md-3 box" id="bg-box" style="' + background + '">';
+                                //Display Profile and user name
+                                // html += "<?php $current_user = wp_get_current_user();
+                                            //             echo get_avatar($current_user->ID, 32) . "<h6 style='display:inline'>&nbsp;  $current_user->user_firstname    $current_user->user_lastname   &emsp;&emsp;  &emsp; </h6>";
+                                            ?>";
+                                html += '<a href="javascript:void(0)"  onclick="editPortfolio(' + element.id + ')"><img src="/wp-content/plugins/mkd-core/icons/pencil.png"/></a>';
+                                html += '<a href="javascript:void(0)" onclick="deletePortfolio(' + element.id + ')"><img src="/wp-content/plugins/mkd-core/icons/trash.png"/></a>';
+
+
+                                html += '<h4 onclick="display(' + element.id + ')" class=" text-center p-5 p_title "style="position:absolute; top:80px" > ' + element.title + ' </h4>';
+                                html += '<div style="position:absolute; top:60px">'
+
+                                html += "</div>"
 
 
 
 
 
-                            html += "</div>"
+                                html += "</div>"
 
-                        });
-                    } 
-                } 
-                $('.portfolios').append(html); 
-            }, 
-        })
-    }),
+                            });
+                        }
+                    }
+                    $('.portfolios').append(html);
+                },
+            })
+        }),
 
-    //  on category changed
-    $('#category').change(function() {
-        if ($("#category  option:selected").text() == "All") {
-            var url = "/wp-admin/admin-ajax.php?action=get_portfolio_All_ajax";
-        }
-        else
-        {
-            var url = "/wp-admin/admin-ajax.php?action=get_portfolio_All_ajax";
-        }
+        //  on category changed
+        $('#category').change(function() {
+            if ($("#category  option:selected").text() == "All") {
+                var url = "/wp-admin/admin-ajax.php?action=get_portfolio_All_ajax";
+            } else {
+                var url = "/wp-admin/admin-ajax.php?action=get_portfolio_All_ajax";
+            }
 
             var cat_id = $('#category').val();
             jQuery.ajax({
@@ -1503,10 +1494,9 @@
 
                                 html += '<div class = "col-md-3 box" style="' + background + '">';
                                 // html += "<?php
-                                if(get_current_user_id() == bbp_get_user_id() ) {
-
-        }
-                                $current_user = wp_get_current_user();
+                                            if (get_current_user_id() == bbp_get_user_id()) {
+                                            }
+                                            $current_user = wp_get_current_user();
                                             ?>";
                                 html += '<a href="javascript:void(0)"  onclick="editPortfolio(' + element.id + ')"><img src="/wp-content/plugins/mkd-core/icons/pencil.png"/></a>';
                                 html += '<a href="javascript:void(0)" onclick="deletePortfolio(' + element.id + ')"><img src="/wp-content/plugins/mkd-core/icons/trash.png"/></a>';
@@ -1528,7 +1518,7 @@
                 },
 
             })
-    });
+        });
     $("#form").submit(function(event) {
         event.preventDefault();
         var buttonPress = document.getElementById('submit').innerText;

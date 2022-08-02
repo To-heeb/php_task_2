@@ -267,16 +267,20 @@
     .col-12 {
         width: 100%;
     }
-    
-    .bs-bp-container{
-        width:100% !important;
-    }
-    .bb-grid-cell, .bb-grid>* {
-        flex: none !important;
-    }
-    .item-body{
+
+    .bs-bp-container {
         width: 100% !important;
     }
+
+    .bb-grid-cell,
+    .bb-grid>* {
+        flex: none !important;
+    }
+
+    .item-body {
+        width: 100% !important;
+    }
+
     @media only screen and (max-width: 768px) {
 
         /* For mobile phones: */
@@ -314,7 +318,7 @@
         <div id="whats-new-avatar">
 
             <span class="mt-3"> <b id="form_heading">Add Portfolio</b></span>
-        
+
 
         </div>
         <label for="textarea">Your Content </label>
@@ -383,7 +387,7 @@
                     <option value="public">Public</option>
                     <option value="private">Private</option>
                 </select>
-            </div> 
+            </div>
         </div>
 
         <div class="row mt-3">
@@ -392,7 +396,7 @@
             </div>
             <div class="col-md-4 btn-groups">
                 <!-- data-toggle="modal" data-target=".bd-example-modal-lg" name="preview" -->
-                <button type="button" class="btn btn-info validate-preview"  id="preview">Preview</button>
+                <button type="button" class="btn btn-info validate-preview" id="preview">Preview</button>
 
                 <input type="button" class="bg-dark" value="Cancel">
 
@@ -401,36 +405,33 @@
             </div>
         </div>
     </form>
- 
+
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<!--<script src="//cdn.jsdelivr.net/npm/sweetalert2@11" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>-->
 <script>
-    $('.validate-preview').click(function()
-    {
-        let title       =$('#title').val();
-        let psuedoname  =$('#psuedoname').val();
-        let validation_failure=0;
-        if(title ==''){
+    $('.validate-preview').click(function() {
+        //Swal.fire('Any fool can use a computer')
+        let title = $('#title').val();
+        let psuedoname = $('#psuedoname').val();
+        let validation_failure = 0;
+        if (title == '') {
             $('#TitleError').text('Title Field is required');
-            validation_failure=1;
-        }
-        else{
+            validation_failure = 1;
+            //alert('Please enter a title')
+        } else {
             $('#TitleError').text('');
         }
-        if(psuedoname ==''){
+        if (psuedoname == '') {
             $('#PsuedonameError').text('Writer Name Field is required');
-            validation_failure=1;
-        }
-        else{
+            validation_failure = 1;
+        } else {
             $('#PsuedonameError').text('');
         }
-        if(validation_failure == 0)
-        {
+        if (validation_failure == 0) {
             $('.bd-example-modal-lg').modal('toggle');
-        }else{
+        } else {
             alert("Please fix errors")
         }
     })
 </script>
-
- 

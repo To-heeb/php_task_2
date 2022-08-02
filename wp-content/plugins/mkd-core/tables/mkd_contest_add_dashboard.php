@@ -1,16 +1,24 @@
-
-
 <?php
 global $wpdb;
- 
+
 $message = '';
-if(isset($_POST['Add'])) {
+if (isset($_POST['Add'])) {
     unset($_POST['Add']);
 
     $res = $_POST['end_date'];
     $_POST['no_of_particpants'] = 0;
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    $category = $_POST['category_id'];
+    $start_date = $_POST['start_date'];
+    $end_date = $_POST['end_date'];
+    $num_winners = $_POST['num_winners'];
+    $prize_draw = $_POST['prize_draw'];
+    $total_prize_pool = $_POST['total_prize_pool'];
+    $url = $_POST['url'];
+    $video_url  = $_POST['video_url'];
     echo $res;
-     $result = $wpdb->insert('mkd_contest', $_POST, array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'));
+    $result = $wpdb->insert('mkd_contest', $_POST, array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s'));
     var_dump($result);
     if ($wpdb->last_error === '') {
         $message .= "Contest Added. <a href='/wp-admin/admin.php?page=mkd_contest_list_dashboard'>Click Here to go back to list</a>";
@@ -33,25 +41,21 @@ function getUsersByRole($role, $name, $selected = '', $extra = '')
 
     $r = $wpdb->get_results("SELECT  wp_users.display_name,mkd_portfolio.id  FROM mkd_portfolio INNER JOIN wp_users on mkd_portfolio.user_id = wp_users.id ", ARRAY_A);
 
-     
+
 
     $content .= '<select required="true" name="' . $name . '" id="' . $name . '" ' . $extra . '>';
 
-    if ( empty($selected) )
-    {
+    if (empty($selected)) {
         $content .= '<option value="" selected="selected">Choose a user</option>';
-    } 
-    else 
-    {
+    } else {
         $r_user = $wpdb->get_results("SELECT  wp_users.display_name,mkd_portfolio.id  FROM mkd_portfolio INNER JOIN wp_users on mkd_portfolio.user_id = wp_users.id WHERE mkd_portfolio.id = '" . $selected . "' ", ARRAY_A);
 
         // $r_user = $wpdb->get_results("SELECT *   from " . $wpdb->prefix . " users where ID = " . $selected . "", ARRAY_A);
         $content .= '<option value="' . $selected . '" selected="selected">' . stripslashes($r_user[0]['display_name']) . '</option>';
     }
 
-    for ($i = 0; $i < count($r); $i++) 
-    {
-        
+    for ($i = 0; $i < count($r); $i++) {
+
         $content .= '<option value="' . $r[$i]['id'] . '">' . stripslashes($r[$i]['display_name']) . '</option>';
     }
     $content .= '</select>';
@@ -199,7 +203,7 @@ function getCategory()
                     </th>
 
                     <td>
-                        <input name='prize_draw'  type="text"   />
+                        <input name='prize_draw' type="text" />
                     </td>
 
                 </tr>
@@ -218,7 +222,7 @@ function getCategory()
                 <tr class='form-field'>
                     <th scope='row'>
                         <label for='image'>
-                          Image  url
+                            Image url
                         </label>
                     </th>
                     <td>
@@ -229,7 +233,7 @@ function getCategory()
                 <tr class='form-field'>
                     <th scope='row'>
                         <label for='Video Url'>
-                          Video url
+                            Video url
                         </label>
                     </th>
                     <td>
@@ -237,7 +241,7 @@ function getCategory()
 
                     </td>
                 </tr>
-           
+
 
 
             </tbody>
