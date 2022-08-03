@@ -1225,6 +1225,8 @@ function set_winners($contest_id)
 // 	}
 
 // }
+
+// this cron job will run by 12:00 AM daily.
 function run_tournament_cronjob()
 {
 	global $wpdb;
@@ -1245,6 +1247,15 @@ function run_tournament_cronjob()
 	}
 	exit();
 }
+
+
+// cron job to run 4 hours before the close of EVERY phase  (this cron job will run by 12:00 AM daily.)
+function voting_notification()
+{
+	global $wpdb;
+	$today = date("Y-m-d");
+}
+
 
 function create_pods_ajax($contest_id = 0)
 {
@@ -1267,6 +1278,7 @@ function create_pods_ajax($contest_id = 0)
 	// $contest_id = $contest_id;
 	//$contest_level = 1;
 	//$contest_id = $_POST['contest_id'];
+
 	if ($contest_id == 0) {
 		return [
 			'data' => 0,
@@ -1283,7 +1295,7 @@ function create_pods_ajax($contest_id = 0)
 	$contest = $contest_query[0];
 	$contest_level = $contest->contest_level;
 	if ($contest_level == 'final') {
-		$num_winners = $contest->num_winners ? $contest->num_winners : 3;
+		$num_winners = $contest->num_winners ? $contest->num_winners : '';
 		$contest_competitors = $wpdb->get_results("SELECT  * FROM mkd_pod_competitors where contest_id = '$contest_id' AND contest_level = 'final' ORDER BY votes DESC");
 		//echo json_encode($contest_competitors);exit();
 		$max_vote = max(array_column($contest_competitors, 'votes'));
@@ -1299,7 +1311,7 @@ function create_pods_ajax($contest_id = 0)
 		$winner_loop = 0;
 		foreach ($unique_votes as $u_key => $vote_check) {
 			$i = $u_key + 1;
-			if ($i > $num_winners || $i > 5) {
+			if ($i > $num_winners || $i > 11) {
 				continue;
 			}
 			$winner_pc['winner_' . $i] = [];
@@ -1325,7 +1337,7 @@ function create_pods_ajax($contest_id = 0)
 			}
 			$winner_loop = $i;
 			foreach ($winner_pc['winner_' . $i] as $key => $winner_place) {
-				if ($winner_loop > 5 || $winner_loop > $num_winners || (in_array($winner_place->user_id, $$winner_user_ids))) {
+				if ($winner_loop > 11 || $winner_loop > $num_winners || (in_array($winner_place->user_id, $$winner_user_ids))) {
 					continue;
 				}
 				$winner_key = array_rand($winner_pc['winner_' . $i]);
@@ -1394,6 +1406,8 @@ function create_pods_ajax($contest_id = 0)
 			} else {
 				//select greatest vote
 				$pod_competitors_winners = $wpdb->get_results("SELECT  pc.* FROM  mkd_pod_competitors as pc WHERE pc.contest_id = '$contest_id' AND pc.contest_level = '$contest_level' AND pc.pod_id = '$contest_pod->id' AND votes = '$max_vote'");
+
+
 				//remove those who didn't vote
 
 				$pod_voters = $wpdb->get_results("SELECT  pv.* FROM  mkd_pod_competitor_votes as pv WHERE pv.contest_id = '$contest_id' AND pv.contest_level = '$contest_level' AND pv.pod_id = '$contest_pod->id'");
@@ -1403,12 +1417,22 @@ function create_pods_ajax($contest_id = 0)
 					if (in_array($check_winner_vote->user_id, $voter_ids)) {
 						$final_winners[] = $check_winner_vote;
 					}
+
+					$email_payload = array(
+						'link' => 'https://gametournament.manaknightdigital.com/index.php/tournament/?contest_id=' . $contest_id,
+						'email' => $email,
+						'round_number' => $contest_level,
+						'name' => $name
+
+					);
+					$response = send_email('next-round', $email_payload, $email);
 				}
 				$key = array_rand($final_winners);
 				$winner_portfolio = $final_winners[$key]->portfolio_id;
 				$winner_query = " AND pc.portfolio_id != '$winner_portfolio'";
 			}
 			$pod_competitors_delete_list = $wpdb->get_results("SELECT  * FROM  mkd_pod_competitors as pc WHERE pc.contest_id = '$contest_id' AND pc.contest_level = '$contest_level' AND pc.pod_id = '$contest_pod->id' $winner_query");
+
 			foreach ($pod_competitors_delete_list as $key => $list) {
 
 				$contest_user = $wpdb->get_results("SELECT  * FROM wp_users where ID = '$list->user_id'")[0];
@@ -1451,7 +1475,7 @@ function create_pods_ajax($contest_id = 0)
 				'round_number' => 'final'
 
 			);
-			$response = send_email('next-round', $email_payload, $email);
+			$response = send_email('final-round', $email_payload, $email);
 			$wpdb->insert('mkd_pod_competitors', array(
 				'pod_id' 		=> $pod_id,
 				'contest_id' => $contest->id,
@@ -1468,6 +1492,7 @@ function create_pods_ajax($contest_id = 0)
 			$email_payload = array(
 				'link' => 'https://gametournament.manaknightdigital.com/index.php/tournament/?contest_id=' . $contest->id,
 				'email' => $email,
+				'name' => $name,
 				'round_number' => 'final'
 			);
 			$response = send_email('final-round-voting', $email_payload, $email);
@@ -1480,6 +1505,29 @@ function create_pods_ajax($contest_id = 0)
 			'message' => 'Final tier created.'
 		];
 	}
+
+	// check if date for contest registration is  closing today and participants are enough for the contest 
+	if ($contest->contest_level == '0' and $contest->endate ==  $today and count($contest_portfolios) >= 12) {
+
+		foreach ($contest_portfolios as $key => $contest_portfolio) {
+			$contest_user = $wpdb->get_results("SELECT  * FROM wp_users where ID = '$contest_portfolio->user_id'")[0];
+			$email = $contest_user->user_email;
+			$contest_user_ids .= $contest_user->ID . ',';
+			$email_payload = array(
+				'link' => 'https://gametournament.manaknightdigital.com/index.php/tournament/?contest_id=' . $contest->id,
+				'email' => $email,
+				'round_number' => '1',
+				'contast_name' => $contast->name
+
+			);
+			$wpdb->update('mkd_contest', [
+				'contest_level' =>  '1'
+			], array('id' => $contest_id));
+			$response = send_email('voting-begins', $email_payload, $email);
+		}
+	}
+
+
 	//$wpdb->query("UPDATE mkd_pod_competitors SET votes = votes + 1 WHERE portfolio_id = $competitor_id AND contest_level=$contest_level AND pod_id = $pod_id");
 	// $pod_length = count($contest_portfolios) % 4;
 	// for($i=0; $i <= $pod_size; $i++)
@@ -1862,36 +1910,48 @@ function get_contest_winners()
 		//echo $wpdb->last_query;exit();
 		if ($portfolio) {
 			$contest->winner['1'] = $portfolio;
+			$email_payload = array(
+				'link' => 'https://gametournament.manaknightdigital.com/index.php/winners/?contest_id=' . $contest->id,
+				'email' => $email,
+				'postition' => $winner_loop == '1' ? 'First' : $winner_loop,
+				'name' => $name
+
+			);
+			$response = send_email('winner-first-position', $email_payload, $email);
 		}
 	}
-	if ($contest->winner_2) {
-		$portfolio = $wpdb->get_results("SELECT  mkd_portfolio.*, wp_users.display_name FROM   mkd_portfolio LEFT JOIN wp_users on wp_users.ID = mkd_portfolio.user_id where mkd_portfolio.id= '$contest->winner_2'")[0];
-		if ($portfolio) {
-			$contest->winner['2'] = $portfolio;
+	for ($i = 2; $i <= 11; $i++) {
+		$contest_winner = $contest->winner_ . $i;
+		if ($contest_winner) {
+			$portfolio = $wpdb->get_results("SELECT  mkd_portfolio.*, wp_users.display_name FROM   mkd_portfolio LEFT JOIN wp_users on wp_users.ID = mkd_portfolio.user_id where mkd_portfolio.id= '$contest_winner'")[0];
+			if ($portfolio) {
+				$contest->winner[$i] = $portfolio;
+				$email_payload = array(
+					'link' => 'https://gametournament.manaknightdigital.com/index.php/winners/?contest_id=' . $contest->id,
+					'email' => $email,
+					'postition' =>  $i,
+					'name' => $name
+
+				);
+				$response = send_email('winner-runners-up', $email_payload, $email);
+			}
 		}
 	}
-	if ($contest->winner_3) {
-		$portfolio = $wpdb->get_results("SELECT  mkd_portfolio.*, wp_users.display_name FROM   mkd_portfolio LEFT JOIN wp_users on wp_users.ID = mkd_portfolio.user_id where mkd_portfolio.id= '$contest->winner_3'")[0];
-		if ($portfolio) {
-			$contest->winner['3'] = $portfolio;
-		}
-	}
-	if ($contest->winner_4) {
-		$portfolio = $wpdb->get_results("SELECT  mkd_portfolio.*, wp_users.display_name FROM   mkd_portfolio LEFT JOIN wp_users on wp_users.ID = mkd_portfolio.user_id where mkd_portfolio.id= '$contest->winner_4'")[0];
-		if ($portfolio) {
-			$contest->winner['4'] = $portfolio;
-		}
-	}
-	if ($contest->winner_5) {
-		$portfolio = $wpdb->get_results("SELECT  mkd_portfolio.*, wp_users.display_name FROM   mkd_portfolio LEFT JOIN wp_users on wp_users.ID = mkd_portfolio.user_id where mkd_portfolio.id= '$contest->winner_5'")[0];
-		if ($portfolio) {
-			$contest->winner['5'] = $portfolio;
-		}
-	}
+
+
 	if ($contest->draw_winner) {
 		$portfolio = $wpdb->get_results("SELECT  mkd_portfolio.*, wp_users.display_name FROM   mkd_portfolio LEFT JOIN wp_users on wp_users.ID = mkd_portfolio.user_id where mkd_portfolio.id= '$contest->draw_winner'")[0];
 		if ($portfolio) {
 			$contest->winner['draw'] = $portfolio;
+
+			$email_payload = array(
+				'link' => 'https://gametournament.manaknightdigital.com/index.php/winners/?contest_id=' . $contest->id,
+				'email' => $email,
+				'postition' =>  $i,
+				'name' => $name
+
+			);
+			$response = send_email('drawwinner-message', $email_payload, $email);
 		}
 	}
 	$contest->entries = count($contest_entries);
